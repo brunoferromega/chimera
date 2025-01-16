@@ -1,1 +1,0 @@
-/home/brunoferro/Projects/chimera/financial-chs/target/debug/financial-chs: /home/brunoferro/Projects/chimera/financial-chs/src/db/mod.rs /home/brunoferro/Projects/chimera/financial-chs/src/main.rs /home/brunoferro/Projects/chimera/financial-chs/src/transaction/mod.rs
