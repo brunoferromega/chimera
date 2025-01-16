@@ -1,0 +1,12 @@
+/home/brunoferro/Projects/chimera/financial-chs/target/debug/deps/libsqlx-8f70a42bf9beb96c.rmeta: /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/mod.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/mod.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/ty_match.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/spec_error.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.md /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/test.md /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/install_drivers_note.md
+
+/home/brunoferro/Projects/chimera/financial-chs/target/debug/deps/sqlx-8f70a42bf9beb96c.d: /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/mod.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/mod.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/ty_match.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/spec_error.rs /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.md /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/test.md /home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/install_drivers_note.md
+
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.rs:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/mod.rs:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/mod.rs:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/ty_match.rs:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/spec_error.rs:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/lib.md:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/macros/test.md:
+/home/brunoferro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.3/src/any/install_drivers_note.md:
