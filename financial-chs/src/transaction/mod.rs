@@ -1,14 +1,17 @@
 use std::str::FromStr;
+use std::sync::Arc;
 
 use serde::{Serialize, Deserialize};
 use chrono::prelude::*;
 
 use axum::{
-    extract::Path,
+    extract::{Path, Extension},
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
 };
+
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Trade {
@@ -24,7 +27,9 @@ impl Trade {
     }
 }
 
-pub async fn save_t(Json(mut trade): Json<Trade>) -> Response {
+pub async fn save_trade(Json(mut trade): Json<Trade>, state: Arc<AppState>) -> Response {
+    dbg!(&trade);
+    dbg!(&state);
     trade.sync_date_time();
     (StatusCode::OK, Json(trade)).into_response() 
 }
