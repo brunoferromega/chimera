@@ -12,24 +12,13 @@ use sqlx::PgPool;
 mod db;
 mod transaction;
 
-#[derive(Clone, Debug)]
-pub struct AppState {
-    db_connection: PgPool,
-}
-
-impl AppState {
-    pub fn new(db_connection: PgPool) -> Self {
-        AppState { db_connection }
-    }
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let conn_str = env::var("DB_URL").expect("Please input database url when run the program");
 
     let pool = sqlx::PgPool::connect(&conn_str).await?;
 
-    let shared_state = Arc::new(AppState::new(pool));
+    let shared_state = Arc::new(pool);
 
     let app = Router::new()
         .route("/api/health", get(|| async { "I am alive" }))
