@@ -18,15 +18,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let pool = sqlx::PgPool::connect(&conn_str).await?;
 
-    let shared_state = Arc::new(pool);
+    let shared_pool = Arc::new(pool);
 
     let app = Router::new()
         .route("/api/health", get(|| async { "I am alive" }))
         .route(
             "/api/trade",
-            post({
-                let shared_state = Arc::clone(&shared_state);
-                move |body| transaction::save_trade(body, shared_state)
+            get({
+                let shared_pool = Arc::clone(&shared_pool);
+                move || transaction::get_all_trades(shared_pool);
+            })
+            .post({
+                let shared_pool = Arc::clone(&shared_pool);
+                move |body| transaction::save_trade(body, shared_pool)
             }),
         );
 
