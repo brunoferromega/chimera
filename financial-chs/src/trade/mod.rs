@@ -1,11 +1,10 @@
-use std::str::FromStr;
 use std::sync::Arc;
 
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use axum::{
-    extract::{Extension, Path},
+    extract::Path,
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
@@ -16,10 +15,10 @@ use sqlx::PgPool;
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Trade {
     #[serde(skip_deserializing)]
-    id: u64,
+    id: i32,
     #[sqlx(rename = "title")]
     name: String,
-    #[slqx(rename = "amount")]
+    #[sqlx(rename = "amount")]
     value: f64,
     #[serde(skip_deserializing)]
     date_time: chrono::DateTime<Utc>,
@@ -31,12 +30,10 @@ impl Trade {
     }
 }
 
-pub async fn save_trade(Json(mut trade): Json<Trade>, state: Arc<PgPool>) -> Response {
-    dbg!(&trade);
-    dbg!(&state);
+pub async fn save(Json(mut trade): Json<Trade>, state: Arc<PgPool>) -> Response {
     trade.sync_date_time();
 
-    let _rows_affected =
+    let rows_affected =
         sqlx::query(r#"INSERT INTO trades (title, amount, date_time) VALUES ($1, $2, $3)"#)
             .bind(&trade.name)
             .bind(&trade.value)
@@ -53,11 +50,29 @@ pub async fn save_trade(Json(mut trade): Json<Trade>, state: Arc<PgPool>) -> Res
     (StatusCode::OK, Json(trade)).into_response()
 }
 
-pub async fn get_all_trades(state: Arc<PgPool>) -> Response {
-    let trades: Vec<Trade> = sqlx::query_as(r#"SELECT * FROM trades"#)
+pub async fn get_all(state: Arc<PgPool>) -> Response {
+    let trades: Vec<Trade> = sqlx::query_as(r#"SELECT id, title, amount, date_time FROM trades"#)
         .fetch_all(state.as_ref())
         .await
         .unwrap();
 
+    for trade in &trades {
+        println!("{:?}", trade);
+    }
+
     (StatusCode::OK, Json(trades)).into_response()
+}
+
+pub async fn get_by_id(Path(trade_id): Path<i32>, state: Arc<PgPool>) -> Response {
+    let trade_finded: Option<Trade> =
+        sqlx::query_as(r#"SELECT id, title, amount, date_time FROM trades WHERE id = $1"#)
+            .bind(trade_id)
+            .fetch_optional(state.as_ref())
+            .await
+            .unwrap();
+
+    match trade_finded {
+        Some(trade) => (StatusCode::OK, Json(trade)).into_response(),
+        None => (StatusCode::NOT_FOUND).into_response(),
+    }
 }
