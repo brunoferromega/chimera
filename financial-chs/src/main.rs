@@ -2,10 +2,7 @@ use std::env;
 use std::error::Error;
 use std::sync::Arc;
 
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::{routing::get, Router};
 
 mod db;
 mod trade;
@@ -37,6 +34,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
             get({
                 let shared_pool = Arc::clone(&shared_pool);
                 move |path| trade::get_by_id(path, shared_pool)
+            })
+            .delete({
+                let shared_pool = Arc::clone(&shared_pool);
+                move |path| trade::delete(path, shared_pool)
+            })
+            .put({
+                let shared_pool = Arc::clone(&shared_pool);
+                move |path: axum::extract::Path<_>, body: axum::Json<_>| {
+                    trade::update(path, body, shared_pool)
+                }
             }),
         );
 
