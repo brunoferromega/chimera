@@ -6,6 +6,7 @@ use axum::{routing::get, Router};
 
 mod db;
 mod trade;
+mod auth;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
