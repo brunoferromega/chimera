@@ -2,11 +2,15 @@ use std::env;
 use std::error::Error;
 use std::sync::Arc;
 
-use axum::{routing::get, Router};
+use axum::{
+    middleware,
+    routing::{get, post},
+    Router,
+};
 
+mod auth;
 mod db;
 mod trade;
-mod auth;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -16,9 +20,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let shared_pool = Arc::new(pool);
 
-    let health_ep = Router::new().route("/", get(|| async { "I am alive" }));
+    let health_rt = Router::new().route("/", get(|| async { "I am alive" }));
 
-    let trade_ep = Router::new()
+    let auth_rt = Router::new().route(
+        "/",
+        post({
+            let shared_pool = Arc::clone(&shared_pool);
+            move |body| auth::sign_in(body, shared_pool)
+        }),
+    );
+
+    let trade_rt = Router::new()
         .route(
             "/",
             get({
@@ -46,11 +58,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     trade::update(path, body, shared_pool)
                 }
             }),
-        );
+        )
+        .layer(middleware::from_fn(auth::authorize));
 
     let api_eps = Router::new()
-        .nest("/health", health_ep)
-        .nest("/trade", trade_ep);
+        .nest("/health", health_rt)
+        .nest("/trade", trade_rt)
+        .nest("/sign_in", auth_rt);
 
     let app = Router::new().nest("/api", api_eps);
 
