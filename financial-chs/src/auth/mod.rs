@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use axum::{
-    body::Body,
     extract::{Json, Request},
     http,
     http::StatusCode,
@@ -9,11 +8,13 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::verify;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+
+use crate::user::user_finded;
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
@@ -34,13 +35,6 @@ pub struct SignInData {
     pub password: String,
 }
 
-#[derive(Clone)]
-struct CurrentUser {
-    pub email: String,
-    pub first_name: String,
-    pub last_name: String,
-    pub password_hash: String,
-}
 
 pub async fn sign_in(Json(user_data): Json<SignInData>, _state: Arc<PgPool>) -> Response {
     let user = match user_finded(&user_data.email) {
@@ -48,7 +42,7 @@ pub async fn sign_in(Json(user_data): Json<SignInData>, _state: Arc<PgPool>) -> 
         None => return (StatusCode::UNAUTHORIZED).into_response(),
     };
 
-    if !verify(&user_data.password, &user.password_hash)
+    if !verify(&user_data.password, &user.hash_password)
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR).into_response())
         .unwrap()
     {
@@ -62,21 +56,6 @@ pub async fn sign_in(Json(user_data): Json<SignInData>, _state: Arc<PgPool>) -> 
     (StatusCode::OK, Json(token)).into_response()
 }
 
-fn user_finded(email: &str) -> Option<CurrentUser> {
-    if email == "fakecrypt@mail.com" {
-        let ph = hash("rusty", DEFAULT_COST).unwrap();
-        println!("{}", &ph);
-
-        Some(CurrentUser {
-            email: email.to_string(),
-            first_name: "Thanatos".to_string(),
-            last_name: "Niet".to_string(),
-            password_hash: ph,
-        })
-    } else {
-        None
-    }
-}
 
 fn encode_jwt(email: String) -> Result<String, StatusCode> {
     let secret = "randomStringTypicallyFromEnv".to_string();

@@ -11,6 +11,7 @@ use axum::{
 mod auth;
 mod db;
 mod trade;
+mod user;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -27,6 +28,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         post({
             let shared_pool = Arc::clone(&shared_pool);
             move |body| auth::sign_in(body, shared_pool)
+        }),
+    );
+
+    let user_rt = Router::new().route(
+        "/",
+        post({
+            let shared_pool = Arc::clone(&shared_pool);
+            move |body| user::register(body, shared_pool)
         }),
     );
 
@@ -64,7 +73,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let api_eps = Router::new()
         .nest("/health", health_rt)
         .nest("/trade", trade_rt)
-        .nest("/sign_in", auth_rt);
+        .nest("/sign_in", auth_rt)
+        .nest("/sign_up", user_rt);
 
     let app = Router::new().nest("/api", api_eps);
 
