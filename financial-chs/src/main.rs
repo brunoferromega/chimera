@@ -68,7 +68,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }),
         )
-        .layer(middleware::from_fn(auth::authorize));
+        .route_layer(middleware::from_fn_with_state(
+            Arc::clone(&shared_pool),
+            auth::authorize,
+        ));
 
     let api_eps = Router::new()
         .nest("/health", health_rt)

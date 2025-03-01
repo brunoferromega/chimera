@@ -24,7 +24,7 @@ impl User {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, sqlx::FromRow)]
 pub struct UserOut {
     pub email: String,
     pub username: String,
@@ -72,7 +72,7 @@ pub async fn register(Json(mut user): Json<User>, state: Arc<PgPool>) -> Respons
     };
 
     let rows_affected =
-        sqlx::query(r#"INSERT INTO user_ch (email, username, hash_password) VALUES ($1, $2, $3) "#)
+        sqlx::query(r#"INSERT INTO users (email, username, hash_password) VALUES ($1, $2, $3) "#)
             .bind(&user_out.email)
             .bind(&user_out.username)
             .bind(&user_out.hash_password)
@@ -88,6 +88,15 @@ pub async fn register(Json(mut user): Json<User>, state: Arc<PgPool>) -> Respons
     (StatusCode::OK, Json(user_out)).into_response()
 }
 
-pub fn user_finded(_email: &str) -> Option<UserOut> {
-    todo!()
+pub async fn find(email: String, db: Arc<PgPool>) -> Option<UserOut> {
+    let user: Result<UserOut, _> =
+        sqlx::query_as(r#"SELECT email, username, hash_password FROM users WHERE email = $1"#)
+            .bind(email)
+            .fetch_one(db.as_ref())
+            .await;
+
+    match user {
+        Ok(user) => Some(user),
+        Err(_) => None,
+    }
 }

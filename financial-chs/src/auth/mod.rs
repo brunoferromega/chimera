@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Json, Request},
+    extract::{Json, Request, State},
     http,
     http::StatusCode,
     middleware::Next,
@@ -14,7 +14,7 @@ use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, 
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::user::user_finded;
+use crate::user;
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
@@ -35,9 +35,8 @@ pub struct SignInData {
     pub password: String,
 }
 
-
-pub async fn sign_in(Json(user_data): Json<SignInData>, _state: Arc<PgPool>) -> Response {
-    let user = match user_finded(&user_data.email) {
+pub async fn sign_in(Json(user_data): Json<SignInData>, state: Arc<PgPool>) -> Response {
+    let user = match user::find(user_data.email, state).await {
         Some(user) => user,
         None => return (StatusCode::UNAUTHORIZED).into_response(),
     };
@@ -55,7 +54,6 @@ pub async fn sign_in(Json(user_data): Json<SignInData>, _state: Arc<PgPool>) -> 
 
     (StatusCode::OK, Json(token)).into_response()
 }
-
 
 fn encode_jwt(email: String) -> Result<String, StatusCode> {
     let secret = "randomStringTypicallyFromEnv".to_string();
@@ -85,20 +83,22 @@ fn decode_jwt(jwt_token: String) -> Result<TokenData<Claims>, StatusCode> {
     result
 }
 
-pub async fn authorize(mut req: Request, next: Next) -> impl IntoResponse {
+pub async fn authorize(State(db_pool): State<Arc<PgPool>>, mut req: Request, next: Next) -> impl IntoResponse {
     let auth_header = req.headers_mut().get(http::header::AUTHORIZATION);
     let auth_header = match auth_header {
         Some(header) => header.to_str().map_err(|_| {
             (
                 StatusCode::FORBIDDEN,
                 "Empty header is not allowed".to_string(),
-            ).into_response()
+            )
+                .into_response()
         }),
         None => {
             return (
                 StatusCode::FORBIDDEN,
                 "Please add the JWT token to the header".to_string(),
-            ).into_response()
+            )
+                .into_response()
         }
     };
 
@@ -110,17 +110,19 @@ pub async fn authorize(mut req: Request, next: Next) -> impl IntoResponse {
             return (
                 StatusCode::UNAUTHORIZED,
                 String::from("Unable to decode token"),
-            ).into_response()
+            )
+                .into_response()
         }
     };
 
-    let current_user = match user_finded(&token_data.claims.email) {
+    let current_user = match user::find(token_data.claims.email, db_pool).await {
         Some(user) => user,
         None => {
             return (
                 StatusCode::UNAUTHORIZED,
                 String::from("You're not authorized user"),
-            ).into_response()
+            )
+                .into_response()
         }
     };
 
