@@ -83,7 +83,11 @@ fn decode_jwt(jwt_token: String) -> Result<TokenData<Claims>, StatusCode> {
     result
 }
 
-pub async fn authorize(State(db_pool): State<Arc<PgPool>>, mut req: Request, next: Next) -> impl IntoResponse {
+pub async fn authorize(
+    State(db_pool): State<Arc<PgPool>>,
+    mut req: Request,
+    next: Next,
+) -> impl IntoResponse {
     let auth_header = req.headers_mut().get(http::header::AUTHORIZATION);
     let auth_header = match auth_header {
         Some(header) => header.to_str().map_err(|_| {

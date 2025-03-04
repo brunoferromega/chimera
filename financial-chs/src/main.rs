@@ -77,7 +77,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .nest("/health", health_rt)
         .nest("/trade", trade_rt)
         .nest("/sign_in", auth_rt)
-        .nest("/sign_up", user_rt);
+        .nest("/login", user_rt);
 
     let app = Router::new().nest("/api", api_eps);
 
